@@ -1,0 +1,12 @@
+[SddmGreeterTheme]
+Name=Bluemau Theme
+Description=Custom SDDM theme created by Bluemau
+Author=Mauricio Plaza-Cabello
+Copyright=(c) 2026 Mauricio
+License=MIT
+Type=sddm-theme
+Version=1.0
+MainScript=Main.qml
+ConfigFile=theme.conf
+Theme-Id=SDDM-Bluemau-Theme
+Theme-API=2.0
