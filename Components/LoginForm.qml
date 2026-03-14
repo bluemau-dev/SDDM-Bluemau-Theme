@@ -12,28 +12,35 @@ ColumnLayout {
     property alias clockVisibility: clock.visible
     property bool virtualKeyboardActive
 
+    spacing: Math.max(18, root.height * 0.025)
+
+    width: Math.min(root.width * 0.26, 420)
+    height: Math.min(root.height * 0.72, 700)
+
+    anchors.left: parent.left
+    anchors.leftMargin: Math.max(50, root.width * 0.06)
+    anchors.verticalCenter: parent.verticalCenter
+
     Clock {
         id: clock
-        Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+        Layout.fillWidth: true
+        Layout.alignment: Qt.AlignLeft
         Layout.preferredHeight: root.height / 4
-        Layout.leftMargin: p != "0" ? a == "left" ? -p : a == "right" ? p : 0 : 0
     }
 
     Input {
         id: input
-        Layout.alignment: Qt.AlignVCenter
-        Layout.preferredHeight: root.height / 10
-        Layout.leftMargin: p != "0" ? a == "left" ? -p : a == "right" ? p : 0 : 0
-        Layout.topMargin: virtualKeyboardActive ? -height * 1.5 : 0
+        Layout.fillWidth: true
+        Layout.alignment: Qt.AlignLeft
+        Layout.preferredHeight: Math.max(80, root.height / 10)
+        Layout.maximumWidth: 700
     }
 
-    SystemButtons {
+    SystemButton {
         id: systemButtons
-        Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+        Layout.fillWidth: true
+        Layout.alignment: Qt.AlignLeft
         Layout.preferredHeight: root.height / 4
         Layout.maximumHeight: root.height / 4
-        Layout.leftMargin: p != "0" ? a == "left" ? -p : a == "right" ? p : 0 : 0
-        exposedSession: input.exposeSession
     }
-
 }

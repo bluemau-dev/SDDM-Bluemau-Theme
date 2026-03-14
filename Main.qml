@@ -7,13 +7,13 @@ import "Components"
 Pane {
     id: root
 
-    height: config.ScreenHeight || Screen.height
-    width: config.ScreenWidth || Screen.ScreenWidth
+    height: parseInt(config.ScreenHeight) || Screen.height
+    width: parseInt(config.ScreenWidth) || Screen.width
 
     LayoutMirroring.enabled: config.ForceRightToLeft == "true" ? true : Qt.application.layoutDirection === Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
 
-    padding: config.ScreenPadding
+    padding: parseInt(config.ScreenPadding) || 0
     palette.button: "transparent"
     palette.highlight: config.AccentColor
     palette.text: config.MainColor
@@ -21,7 +21,9 @@ Pane {
     palette.window: config.BackgroundColor
 
     font.family: config.Font
-    font.pointSize: config.FontSize !== "" ? config.FontSize : parseInt(height / 80)
+    property int baseFontSize: Math.max(12, Math.round(height / 80))
+    font.pointSize: config.FontSize !== "" ? parseInt(config.FontSize) : baseFontSize
+
     focus: true
 
     property bool leftleft: config.HaveFormBackground == "true" &&
@@ -66,7 +68,7 @@ Pane {
             anchors.fill: form
             anchors.centerIn: form
             color: root.palette.window
-            visible: config.HaveFormBackground == "true" ? true : false
+            visible: config.HaveFormBackground == "true"
             opacity: config.PartialBlur == "true" ? 0.3 : 1
             z: 1
         }
@@ -75,11 +77,11 @@ Pane {
             id: form
 
             height: virtualKeyboard.state == "visible" ? parent.height - virtualKeyboard.implicitHeight : parent.height
-            width: parent.width / 2.5
+            width: Math.min(parent.width * 0.4, 700)
             anchors.horizontalCenter: config.FormPosition == "center" ? parent.horizontalCenter : undefined
             anchors.left: config.FormPosition == "left" ? parent.left : undefined
             anchors.right: config.FormPosition == "right" ? parent.right : undefined
-            virtualKeyboardActive: virtualKeyboard.state == "visible" ? true : false
+            virtualKeyboardActive: virtualKeyboard.state == "visible"
             z: 1
         }
 
@@ -129,7 +131,7 @@ Pane {
                     name: "hidden"
                     PropertyChanges {
                         target: virtualKeyboard
-                        y: root.height - root.height/4
+                        y: root.height - root.height / 4
                         opacity: 0
                     }
                 }
@@ -141,7 +143,9 @@ Pane {
                     SequentialAnimation {
                         ScriptAction {
                             script: {
-                                virtualKeyboard.item.activated = true;
+                                if (virtualKeyboard.item) {
+                                    virtualKeyboard.item.activated = true;
+                                }
                                 Qt.inputMethod.show();
                             }
                         }
@@ -192,13 +196,8 @@ Pane {
 
             height: parent.height
             width: config.HaveFormBackground == "true" && config.FormPosition != "center" && config.PartialBlur != "true" ? parent.width - formBackground.width : parent.width
-            anchors.left: leftleft ||
-                          leftcenter ?
-                                formBackground.right : undefined
-
-            anchors.right: rightright ||
-                           rightcenter ?
-                                formBackground.left : undefined
+            anchors.left: leftleft || leftcenter ? formBackground.right : undefined
+            anchors.right: rightright || rightcenter ? formBackground.left : undefined
 
             horizontalAlignment: config.BackgroundImageHAlignment == "left" ?
                                  Image.AlignLeft :
@@ -216,35 +215,6 @@ Pane {
             cache: true
             clip: true
             mipmap: true
-        }
-
-        MouseArea {
-            anchors.fill: backgroundImage
-            onClicked: parent.forceActiveFocus()
-        }
-
-        ShaderEffectSource {
-            id: blurMask
-
-            sourceItem: backgroundImage
-            width: form.width
-            height: parent.height
-            anchors.centerIn: form
-            sourceRect: Qt.rect(x,y,width,height)
-            visible: config.FullBlur == "true" || config.PartialBlur == "true" ? true : false
-        }
-
-        GaussianBlur {
-            id: blur
-
-            height: parent.height
-            width: config.FullBlur == "true" ? parent.width : form.width
-            source: config.FullBlur == "true" ? backgroundImage : blurMask
-            radius: config.BlurRadius
-            samples: config.BlurRadius * 2 + 1
-            cached: true
-            anchors.centerIn: config.FullBlur == "true" ? parent : form
-            visible: config.FullBlur == "true" || config.PartialBlur == "true" ? true : false
         }
     }
 }

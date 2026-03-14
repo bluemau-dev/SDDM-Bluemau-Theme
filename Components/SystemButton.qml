@@ -14,71 +14,82 @@ RowLayout {
     property Control exposedSession
 
     Repeater {
-
         id: systemButtons
         model: [suspend, hibernate, reboot, shutdown]
 
         RoundButton {
+            id: systemButton
+
             text: modelData[1]
             font.pointSize: root.font.pointSize * 0.8
             Layout.alignment: Qt.AlignHCenter
             icon.source: modelData ? Qt.resolvedUrl("../Assets/" + modelData[0] + ".svgz") : ""
-            icon.height: 2 * Math.round((root.font.pointSize * 3) / 2)
-            icon.width: 2 * Math.round((root.font.pointSize * 3) / 2)
+            property int iconSize: Math.max(24, Math.round(root.height / 30))
+            icon.height: iconSize
+            icon.width: iconSize
             display: AbstractButton.TextUnderIcon
             visible: config.ForceHideSystemButtons != "true" && modelData[2]
             hoverEnabled: true
             palette.buttonText: root.palette.text
+
             background: Rectangle {
+                id: buttonBg
                 height: 2
                 color: "transparent"
                 width: parent.width
-                border.width: parent.activeFocus ? 1 : 0
+                border.width: systemButton.activeFocus ? 1 : 0
                 border.color: "transparent"
                 anchors.top: parent.bottom
             }
+
             Keys.onReturnPressed: clicked()
+
             onClicked: {
                 parent.forceActiveFocus()
-                index == 0 ? sddm.suspend() : index == 1 ? sddm.hibernate() : index == 2 ? sddm.reboot() : sddm.powerOff()
+                index == 0 ? sddm.suspend()
+                           : index == 1 ? sddm.hibernate()
+                           : index == 2 ? sddm.reboot()
+                                        : sddm.powerOff()
             }
+
             KeyNavigation.up: exposedSession
-            KeyNavigation.left: parent.children[index-1]
+            KeyNavigation.left: index > 0 ? systemButtons.itemAt(index - 1) : null
+            KeyNavigation.right: index < systemButtons.count - 1 ? systemButtons.itemAt(index + 1) : null
 
             states: [
                 State {
                     name: "pressed"
-                    when: parent.children[index].down
+                    when: systemButton.down
                     PropertyChanges {
-                        target: parent.children[index]
+                        target: systemButton
                         palette.buttonText: Qt.darker(root.palette.highlight, 1.1)
                     }
                     PropertyChanges {
-                        target: parent.children[index].background
+                        target: buttonBg
                         border.color: Qt.darker(root.palette.highlight, 1.1)
                     }
                 },
                 State {
                     name: "hovered"
-                    when: parent.children[index].hovered
+                    when: systemButton.hovered
                     PropertyChanges {
-                        target: parent.children[index]
+                        target: systemButton
                         palette.buttonText: Qt.lighter(root.palette.highlight, 1.1)
                     }
                     PropertyChanges {
-                        target: parent.children[index].background
+                        target: buttonBg
                         border.color: Qt.lighter(root.palette.highlight, 1.1)
                     }
                 },
                 State {
                     name: "focused"
-                    when: parent.children[index].activeFocus
+                    when: systemButton.activeFocus
                     PropertyChanges {
-                        target: parent.children[index]
+                        target: systemButton
                         palette.buttonText: root.palette.highlight
                     }
                     PropertyChanges {
-                        target: parent.children[index].background
+                        target: buttonBg
                         border.color: root.palette.highlight
                     }
                 }
@@ -92,9 +103,6 @@ RowLayout {
                     }
                 }
             ]
-
         }
-
     }
-
 }
